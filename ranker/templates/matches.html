@@ -1,0 +1,36 @@
+{% block body %}
+    <div class="container main">
+        <div class="row justify-content-between w-100">
+            <div id="match-block">
+                <div id="match-table">
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            <b>Ranked Matches</b>
+                        </div>
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin">
+                                    <tbody>
+                                    {% for match in ranked_matches %}
+                                        <tr>
+                                            <td width="25%">
+                                                <b>Winner: {{ match.winner.name }}</b>
+                                            </td>
+                                            <td width="25%">
+                                                <b>Loser: {{ match.loser.name }}</b>
+                                            </td>
+                                            <td>
+                                                <p>{{ match.date.strftime("%m/%d/%Y") }}</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

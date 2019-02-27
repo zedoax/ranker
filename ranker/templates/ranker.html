@@ -1,0 +1,62 @@
+{% extends "extend/base.html" %}
+
+{% block body %}
+    <div class="container main">
+        <div class="row justify-content-center w-100">
+            <div id="match-block">
+                <div id="player">
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            <h2>{{ ranked_player.name }}</h2>
+                        </div>
+                        <div class="card-body">
+                            <b>Rank: {{ ranked_player.rank }}<br></b>
+                            <b>Main: {{ ranked_player.main_name }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div id="match-table">
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            <b>Ranked Matches</b>
+                        </div>
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin">
+                                    <thead>
+                                        <tr>
+                                            <td width="25%">
+                                                Winner
+                                            </td>
+                                            <td width="25%">
+                                                Loser
+                                            </td>
+                                            <td>
+                                                Date
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for match in ranked_matches %}
+                                        <tr>
+                                            <td width="25%">
+                                                <b>{{ match.winner.name }}</b>
+                                            </td>
+                                            <td width="25%">
+                                                <b>{{ match.loser.name }}</b>
+                                            </td>
+                                            <td>
+                                                <p>{{ match.date.strftime("%m/%d/%Y") }}</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
