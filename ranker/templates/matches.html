@@ -11,7 +11,7 @@
                     <div class="card-body table-fill">
                         <div class="table-responsive">
                             <table class="table table-striped no-bottom-margin">
-                                <thead>
+                                <thead class="bg-primary text-center text-white font-weight-bold">
                                 <tr>
                                     <td>
                                         Winner
@@ -33,6 +33,7 @@
                                 <tbody>
                                 {% for match in ranked_matches %}
                                     <tr>
+                                        <td>
                                         <b><a href="/player/{{ match.winner_uid }}/">{{ match.winner.name }}</a></b>
                                         </td>
                                         <td>

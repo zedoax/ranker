@@ -30,7 +30,7 @@ def create_match():
     witness_uid = content['witness_uid']
 
     # Verify the challenge rounds are legal
-    if winner_score + loser_score != app.config['RANKER_MATCH_ROUNDS']:
+    if winner_score + loser_score != app.config['MATCH_ROUNDS']:
         return make_response(jsonify(message="Error: Match invalid"), 200)
 
     # Retrieve the players
@@ -60,9 +60,10 @@ def create_match():
 
     # Create the match, if fails: error out
     try:
-        db.session.add(Match(date=datetime.now(), winner=winner, loser=loser,
-                             winner_score=winner_score, loser_score=loser_score,
-                             witness=witness))
+        match = Match(date=datetime.now(), winner=winner, loser=loser,
+                      winner_score=winner_score, loser_score=loser_score,
+                      witness=witness)
+        db.session.add(match)
         db.session.commit()
     except SQLAlchemyError:
         return make_response(jsonify(message="Error: DB insertion failed"), 500)

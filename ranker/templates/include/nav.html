@@ -1,6 +1,6 @@
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for("ranking") }}">Ranker</a>
+        <a class="navbar-brand" href="{{ url_for("ranking") }}">{{ app.config['GAME_NAME'] }} Ranker</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
                 aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">

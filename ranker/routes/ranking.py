@@ -14,7 +14,7 @@ def ranking():
         return player.rank
     ranked_players.sort(key=sort_rank)
 
-    return render_template("index.html", ranked_players=ranked_players)
+    return render_template("index.html", app=app, ranked_players=ranked_players)
 
 
 @app.route("/player/<uid>/")
@@ -23,7 +23,7 @@ def ranker(uid):
     player = Player.get_player(uid)
     player_matches = Match.get_matches(player.uid)
 
-    return render_template("ranker.html", ranked_player=player, ranked_matches=player_matches)
+    return render_template("ranker.html", app=app, ranked_player=player, ranked_matches=player_matches)
 
 
 @app.route("/matches/")
@@ -31,7 +31,7 @@ def ranker(uid):
 def matches():
     ranked_matches = Match.get_all_matches()
 
-    return render_template("matches.html", ranked_matches=ranked_matches)
+    return render_template("matches.html", app=app, ranked_matches=ranked_matches)
 
 
 @app.route("/match/<mid>/")

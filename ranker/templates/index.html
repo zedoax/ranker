@@ -13,16 +13,29 @@
                             <div class="card-body table-fill">
                                 <div class="table-responsive">
                                     <table class="table table-striped no-bottom-margin">
+                                        <thead class="text">
+                                            <tr class="bg-primary text-center text-white font-weight-bold">
+                                                <td>
+                                                    Rank
+                                                </td>
+                                                <td>
+                                                    Player
+                                                </td>
+                                                <td>
+                                                    Main
+                                                </td>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                         {% for player in ranked_players %}
                                             <tr>
-                                                <td width="10%">
+                                                <td>
                                                     <b>{{ player.rank }}</b>
                                                 </td>
                                                 <td>
                                                     <a href="/player/{{ player.uid }}/">{{ player.name }}</a>
                                                 </td>
-                                                <td width="20%">
+                                                <td>
                                                     <p>{% if player.main_name is not none %} {{ player.main_name }} {% endif %}</p>
                                                 </td>
                                             </tr>
