@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, desc, or_
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, desc, or_, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.functions import count
 
@@ -13,6 +13,7 @@ class Player(db.Model):
     name = Column(String(64), nullable=False)
 
     rank = Column(Integer, nullable=False)
+    witness = Column(Boolean, default=False)
 
     # A ranked player can only have one main for now
     main_name = Column(String(20), ForeignKey("main.name"), nullable=True)
@@ -42,6 +43,14 @@ class Main(db.Model):
     def get_players(cls, name):
         return cls.query.filter_by(name=name).first().players
 
+    @classmethod
+    def get_main(cls, name):
+        return cls.query.filter_by(name=name).first()
+
+    @classmethod
+    def exists(cls, name):
+        return len(cls.query.filter_by(name=name)) > 0
+
 
 class Match(db.Model):
     __tablename__ = "match"
@@ -51,9 +60,19 @@ class Match(db.Model):
     # Each match has a winner and a loser
     winner_uid = Column(String(10), ForeignKey("player.uid"))
     loser_uid = Column(String(10), ForeignKey("player.uid"))
+    witness_uid = Column(String(10), ForeignKey("player.uid"))
 
     winner = relationship("Player", foreign_keys=[winner_uid])
     loser = relationship("Player", foreign_keys=[loser_uid])
+    witness = relationship("Player", foreign_keys=[witness_uid], uselist=False)
+
+    # Each match has a total score
+    winner_score = Column(Integer, nullable=False)
+    loser_score = Column(Integer, nullable=True)
+
+    @classmethod
+    def get_all_matches(cls):
+        return cls.query.order_by(desc(cls.date)).all()
 
     @classmethod
     def get_matches(cls, uid):

@@ -29,7 +29,7 @@ def ranker(uid):
 @app.route("/matches/")
 @auth.oidc_auth
 def matches():
-    ranked_matches = Match.query.order_by(Match.date).all()
+    ranked_matches = Match.get_all_matches()
 
     return render_template("matches.html", ranked_matches=ranked_matches)
 

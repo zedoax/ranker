@@ -25,28 +25,40 @@
                                 <table class="table table-striped no-bottom-margin">
                                     <thead>
                                         <tr>
-                                            <td width="25%">
+                                            <td>
                                                 Winner
                                             </td>
-                                            <td width="25%">
+                                            <td>
+                                                Score
+                                            </td>
+                                            <td>
                                                 Loser
                                             </td>
                                             <td>
                                                 Date
+                                            </td>
+                                            <td>
+                                                Witness
                                             </td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     {% for match in ranked_matches %}
                                         <tr>
-                                            <td width="25%">
-                                                <b>{{ match.winner.name }}</b>
+                                            <td>
+                                                <b><a href="/player/{{ match.winner_uid }}/">{{ match.winner.name }}</a></b>
                                             </td>
-                                            <td width="25%">
-                                                <b>{{ match.loser.name }}</b>
+                                            <td>
+                                                <p>{{ match.winner_score }}/{{ match.loser_score }}</p>
+                                            </td>
+                                            <td>
+                                                <b><a href="/player/{{ match.loser_uid }}/">{{ match.loser.name }}</a></b>
                                             </td>
                                             <td>
                                                 <p>{{ match.date.strftime("%m/%d/%Y") }}</p>
+                                            </td>
+                                            <td>
+                                                <i><a href="/player/{{ match.witness_uid }}">{{ match.witness.name }}</a></i>
                                             </td>
                                         </tr>
                                     {% endfor %}
