@@ -30,4 +30,4 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 
 _ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
 
-from ranker.routes import ranking, api
+from ranker.routes import ranking, api, error
