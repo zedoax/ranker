@@ -23,6 +23,7 @@ LDAP_BIND_DN = environ.get("RANKER_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("RANKER_LDAP_BIND_PASS", None)
 
 # Slack Configuration
+SLACK_ENABLED = environ.get("RANKER_SLACK_ENABLED", False)
 SLACK_API_KEY = environ.get("RANKER_SLACK_API_KEY", None)
 
 # Application-Specific Configuration

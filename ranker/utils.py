@@ -17,5 +17,9 @@ def before_request(func):
     return wrapped_function
 
 
+def ldap_get_member_slack(username):
+    return _ldap.get_member_slackuid(username)
+
+
 def ldap_get_member(username):
     return _ldap.get_member(username, uid=True)

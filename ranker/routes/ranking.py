@@ -1,4 +1,4 @@
-from flask import render_template, redirect
+from flask import render_template, redirect, url_for
 from ranker import auth
 
 from ranker import app
@@ -6,6 +6,12 @@ from ranker.models import Player, Match
 
 
 @app.route("/")
+@auth.oidc_auth
+def index():
+    return redirect(url_for("ranking"), 302)
+
+
+@app.route("/ranks/")
 @auth.oidc_auth
 def ranking():
     ranked_players = Player.get_players_ranked()

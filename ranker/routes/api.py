@@ -25,13 +25,17 @@ def create_match():
     # Pull all values
     winner_uid = content['winner_uid']
     loser_uid = content['loser_uid']
-    winner_score = content['winner_score']
-    loser_score = content['loser_score']
+    winner_score = int(content['winner_score'])
+    loser_score = int(content['loser_score'])
     witness_uid = content['witness_uid']
 
     # Verify the challenge rounds are legal
-    if winner_score + loser_score != app.config['MATCH_ROUNDS']:
-        return make_response(jsonify(message="Error: Match invalid"), 200)
+    if winner_score + loser_score > app.config['MATCH_ROUNDS']:
+        return make_response(jsonify(message="Sorry, that match had too many rounds"), 400)
+    if winner_score < int(int(app.config['MATCH_ROUNDS']) / 2) + 1:
+        return make_response(jsonify(message="Sorry, the winner's score is invalid"), 400)
+    if winner_score < loser_score:
+        return make_response(jsonify(message="Umm, the winner's score is lower than the losers!"), 400)
 
     # Retrieve the players
     winner = Player.get_player(winner_uid)
@@ -48,7 +52,7 @@ def create_match():
 
     # Verify the witness is legitimate
     if not witness.witness:
-        return make_response(jsonify(message="Error: Witness invalid"), 200)
+        return make_response(jsonify(message="Sorry, that player is not a witness"), 400)
 
     # Determine who gets which rank
     winner_rank = min(winner.rank, loser.rank)
@@ -68,7 +72,7 @@ def create_match():
     except SQLAlchemyError:
         return make_response(jsonify(message="Error: DB insertion failed"), 500)
 
-    return make_response(jsonify(message="Success: Match created"), 200)
+    return make_response(jsonify(message="Match has been successfully witnessed and recorded"), 200)
 
 
 @app.route("/api/v1/add_main/", methods=["POST"])
