@@ -3,6 +3,7 @@ import os
 import csh_ldap
 from flask import Flask
 from flask_migrate import Migrate
+from flask_pyoidc.provider_configuration import ClientMetadata, ProviderConfiguration
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
@@ -22,11 +23,13 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # Load CSH Authentication
-auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registration_info={
-    "client_id": app.config["OIDC_CLIENT_ID"],
-    "client_secret": app.config["OIDC_CLIENT_SECRET"],
-    "post_logout_redirect_uris": "/logout/"
-})
+_config = ProviderConfiguration(
+    app.config["OIDC_ISSUER"],
+    client_metadata=ClientMetadata(
+        app.config["OIDC_CLIENT_ID"], app.config["OIDC_CLIENT_SECRET"]
+    )
+)
+auth = OIDCAuthentication({"default": _config}, app)
 
 _ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
 
