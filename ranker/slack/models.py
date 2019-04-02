@@ -19,5 +19,11 @@ class SlackMatch:
                 return player
         return None
 
+    def contains_player(self, user):
+        for player in self.players:
+            if player == user:
+                return player
+        return None
+
     def add_player(self, user):
         self.players.append(user)

@@ -27,6 +27,11 @@ def create_match(args):
     if ldap_get_member_slack(args[1]) is None:
         return "Sorry, they do not have a valid slack id configured. " \
                "Please have them visit https://eac.csh.rit.edu/ to link", False
+    if find_match(paired_matches, args[0]) is not None:
+        return "Sorry, you currently have an ongoing match", False
+    if find_match(unpaired_matches, args[0]) is not None:
+        return "Sorry, you cannot issue multiple challenges.  " \
+               "You must cancel your previous challenge before issuing another", False
     if find_match(paired_matches, args[1]) is not None:
         return "Sorry, they already have an ongoing match", False
     unpaired_matches.append(SlackMatch(args[0], args[1]))
@@ -40,6 +45,8 @@ def accept_match(args):
         return "Sorry, you cannot accept your own challenge"
     match = find_match(unpaired_matches, args[1])
     if match is None:
+        return "You are not currently being challenged", False
+    if match.contains_player(args[0]) is None:
         return "You are not currently being challenged", False
     match.accept()
     paired_matches.append(match)
