@@ -22,7 +22,9 @@ class Player(db.Model):
 
     @classmethod
     def rank(cls, player):
-        return cls.query.filter(player.rating < cls.rating, cls.joined < player.joined).count() + 1
+        return cls.query.filter((player.rating < cls.rating)
+                                | ((cls.joined < player.joined)
+                                & (cls.rating == player.rating))).count() + 1
 
     @classmethod
     def get_players_ranked(cls):
