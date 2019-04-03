@@ -2,7 +2,6 @@ from datetime import datetime
 
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, desc, or_, Boolean
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.functions import count
 
 from ranker import db
 
@@ -12,20 +11,22 @@ class Player(db.Model):
     uid = Column(String(10), primary_key=True)
     name = Column(String(64), nullable=False)
 
-    rank = Column(Integer, nullable=False)
+    rating = Column(Integer, nullable=False)
     witness = Column(Boolean, default=False)
+
+    joined = Column(DateTime, nullable=False)
 
     # A ranked player can only have one main for now
     main_name = Column(String(20), ForeignKey("main.name"), nullable=True)
     main = relationship("Main", back_populates="players")
 
     @classmethod
-    def get_next_rank(cls):
-        return db.session.query(count(Player.rank)).scalar() + 1
+    def rank(cls, player):
+        return cls.query.filter(player.rating < cls.rating, cls.joined < player.joined).count() + 1
 
     @classmethod
     def get_players_ranked(cls):
-        return cls.query.order_by(desc(cls.rank)).all()
+        return cls.query.order_by(desc(cls.rating)).all()
 
     @classmethod
     def get_player(cls, uid):

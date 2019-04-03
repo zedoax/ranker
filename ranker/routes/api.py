@@ -8,6 +8,9 @@ from ranker import app, db
 from ranker.utils import ldap_get_member
 from ranker.models import Player, Match, Main
 
+RATING_IMPACT_CONSTANT = app.config['RATING_IMPACT_CONSTANT']
+RATING_DEFAULT = app.config['RATING_DEFAULT']
+
 
 @app.route("/api/v1/new_match/", methods=["POST"])
 def create_match():
@@ -54,13 +57,15 @@ def create_match():
     if not witness.witness:
         return make_response(jsonify(message="Sorry, that player is not a witness"), 400)
 
-    # Determine who gets which rank
-    winner_rank = min(winner.rank, loser.rank)
-    loser_rank = max(loser.rank, winner.rank)
+    # Calculate Rating Changes
+    rating_winner = pow(10, (winner.rating / 400))
+    rating_loser = pow(10, (loser.rating / 400))
 
-    # Assign each rank
-    winner.rank = winner_rank
-    loser.rank = loser_rank
+    expected_rating_winner = rating_winner / (rating_winner + rating_loser)
+    expected_rating_loser = rating_loser / (rating_winner + rating_loser)
+
+    winner.rating = winner.rating + RATING_IMPACT_CONSTANT * (1 - expected_rating_winner)
+    loser.rating = loser.rating + RATING_IMPACT_CONSTANT * (0 - expected_rating_loser)
 
     # Create the match, if fails: error out
     try:
@@ -157,9 +162,7 @@ def new_player(uid):
     # Get member from ldap
     member = ldap_get_member(uid)
 
-    # Create new ranked player
-    rank = Player.get_next_rank()
-    player = Player(uid=uid, name=member.cn, rank=rank)
+    player = Player(uid=uid, name=member.cn, rank=RATING_DEFAULT, joined=datetime.now())
 
     # Try to insert into the database
     try:
