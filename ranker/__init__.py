@@ -1,3 +1,5 @@
+""" Ranker main module """
+
 import os
 
 import csh_ldap
@@ -6,6 +8,7 @@ from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
+# pylint: disable=C0103
 app = Flask(__name__)
 
 # Load Configuration
@@ -30,6 +33,7 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 
 _ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
 
+# pylint: disable=C0413
 from ranker.routes import ranking, api, error
 
 if app.config["SLACK_ENABLED"]:

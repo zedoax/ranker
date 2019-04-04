@@ -17,6 +17,7 @@ BOT_ACTIONS = ['create_match', 'remove_match' 'add_admin', 'remove_admin', 'witn
 
 
 def create_match(args):
+    """ Process match creation event """
     if len(args) != 2:
         return "Usage: /challenge @opponent", False
     if args[0] == args[1]:
@@ -39,6 +40,7 @@ def create_match(args):
 
 
 def accept_match(args):
+    """ Process accept event """
     if len(args) != 2:
         return "Usage: /accept @challenger", False
     if args[0] == args[1]:
@@ -55,6 +57,7 @@ def accept_match(args):
 
 
 def cancel_match(args):
+    """ Process cancel match event """
     if len(args) != 1:
         return "Usage: /cancel", False
     paired = False
@@ -74,12 +77,14 @@ def cancel_match(args):
 
 
 def remove_match(args):
+    """ STUB """
     # STUB
     return False
 
 
 # Valid Witness Required
 def add_admin(args):
+    """ Process add witness event """
     if len(args) != 2:
         return "Usage /add_witness @player", False
     if args[0] == args[1]:
@@ -104,6 +109,7 @@ def add_admin(args):
 
 
 def remove_admin(args):
+    """ STUB """
     if len(args) != 1:
         return False
     return True
@@ -111,6 +117,7 @@ def remove_admin(args):
 
 # Valid Witness Required
 def witness_match(args):
+    """ Process witness event """
     if len(args) != 4:
         return "Usage: /witness @winner winner_score loser_score", False
     witness = args[0]
@@ -168,6 +175,7 @@ def app_mention(event_data):
 
 @slack_events.on("url_verification")
 def app_verification(event_data):
+    """ Verification event """
     return make_response(jsonify({
         'challenge': event_data['challenge']
     }), 200)
@@ -175,6 +183,7 @@ def app_verification(event_data):
 
 @app.route("/api/v1/slack/command", methods=["POST"])
 def app_events_api():
+    """ Process sent command """
     content = request.form.to_dict(flat=False)
     channel = content.get('channel_id', [])[0]
     user = str(content.get('user_id', [''])[0])
@@ -199,5 +208,6 @@ def app_events_api():
 
 @app.route("/slack/direct_install")
 def direct_install():
+    """ Process direct install requests """
     return redirect("""https://cshrit.slack.com/oauth/
     563574560288.c7032ad2a0c916712246aff79853365685a3f48bb445e0939d7675e6bddea57e?team=1""", 302)

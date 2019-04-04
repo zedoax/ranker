@@ -2,6 +2,7 @@ from ranker.utils import ldap_get_member_slack
 
 
 def find_match(match_list, player):
+    """ Locate the match belonging to a player from a list of matches """
     for match in match_list:
         if player in match.players:
             return match
@@ -9,6 +10,7 @@ def find_match(match_list, player):
 
 
 def csh_create_match(winner, loser, winner_score, loser_score, witness):
+    """ Create a Match object from given parameters """
     winner_profile = ldap_get_member_slack(winner)
     loser_profile = ldap_get_member_slack(loser)
     witness_profile = ldap_get_member_slack(witness)
@@ -30,6 +32,7 @@ def csh_create_match(winner, loser, winner_score, loser_score, witness):
 
 
 def slack_convert_players(string):
+    """ Extract SlackID from Slack user string """
     user_start = string.find('<')
     user_index = string.find('@')
     user_trans = string.find('|')
