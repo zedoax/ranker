@@ -16,10 +16,6 @@ def index():
 def ranking():
     ranked_players = Player.get_players_ranked()
 
-    def sort_rank(player):
-        return player.rank
-    ranked_players.sort(key=sort_rank)
-
     return render_template("index.html", app=app, ranked_players=ranked_players)
 
 

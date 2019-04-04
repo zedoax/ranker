@@ -29,3 +29,5 @@ SLACK_API_KEY = environ.get("RANKER_SLACK_API_KEY", None)
 # Application-Specific Configuration
 GAME_NAME = environ.get("RANKER_GAME_NAME", "")
 MATCH_ROUNDS = environ.get("RANKER_MATCH_ROUNDS", 5)
+RATING_IMPACT_CONSTANT = int(environ.get("RANKER_RATING_IMPACT_CONSTANT", 32))
+RATING_DEFAULT = int(environ.get("RANKER_RATING_DEFAULT", 100))

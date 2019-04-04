@@ -30,7 +30,7 @@
                                         {% for player in ranked_players %}
                                             <tr>
                                                 <td>
-                                                    <b>{{ player.rank }}</b>
+                                                    <b>{{ loop.index }}</b>
                                                 </td>
                                                 <td>
                                                     <a href="/player/{{ player.uid }}/">{{ player.name }}</a>
