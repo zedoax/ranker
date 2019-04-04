@@ -6,13 +6,13 @@ from ranker.models import Player, Match
 
 
 @app.route("/")
-@auth.oidc_auth
+@auth.oidc_auth("default")
 def index():
     return redirect(url_for("ranking"), 302)
 
 
 @app.route("/ranks/")
-@auth.oidc_auth
+@auth.oidc_auth("default")
 def ranking():
     ranked_players = Player.get_players_ranked()
 
@@ -20,7 +20,7 @@ def ranking():
 
 
 @app.route("/player/<uid>/")
-@auth.oidc_auth
+@auth.oidc_auth("default")
 def ranker(uid):
     player = Player.get_player(uid)
     player_matches = Match.get_matches(player.uid)
@@ -29,7 +29,7 @@ def ranker(uid):
 
 
 @app.route("/matches/")
-@auth.oidc_auth
+@auth.oidc_auth("default")
 def matches():
     ranked_matches = Match.get_all_matches()
 
@@ -37,7 +37,7 @@ def matches():
 
 
 @app.route("/match/<mid>/")
-@auth.oidc_auth
+@auth.oidc_auth("default")
 def match(mid):
     return ""
 
