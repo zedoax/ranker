@@ -1,4 +1,5 @@
 requests
+pylint
 slackeventsapi
 sqlalchemy
 Flask==1.0.2
