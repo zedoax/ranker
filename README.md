@@ -1,6 +1,7 @@
 # Ranker
 
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Build Status](https://travis-ci.com/zedoax/Ranker.svg?branch=master)](https://travis-ci.com/zedoax/Ranker)
 
 Ranker is an application for tracking Global Ranking for video game ranked matches.  Users log their matches with an 
 accepted third party witness, and ranking calculation occurs on the backend.  
