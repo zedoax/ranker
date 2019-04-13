@@ -162,7 +162,7 @@ def new_player(uid):
     # Get member from ldap
     member = ldap_get_member(uid)
 
-    player = Player(uid=uid, name=member.cn, rank=RATING_DEFAULT, joined=datetime.now())
+    player = Player(uid=uid, name=member.cn, rating=RATING_DEFAULT, joined=datetime.now())
 
     # Try to insert into the database
     try:
