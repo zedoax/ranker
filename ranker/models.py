@@ -73,9 +73,9 @@ class Match(db.Model):
     date = Column(DateTime, default=datetime.now(), nullable=False)
 
     # Each match has a winner and a loser
-    winner_uid = Column(String(10), ForeignKey("player.uid"))
-    loser_uid = Column(String(10), ForeignKey("player.uid"))
-    witness_uid = Column(String(10), ForeignKey("player.uid"))
+    winner_uid = Column(String(24), ForeignKey("player.uid"))
+    loser_uid = Column(String(24), ForeignKey("player.uid"))
+    witness_uid = Column(String(24), ForeignKey("player.uid"))
 
     winner = relationship("Player", foreign_keys=[winner_uid])
     loser = relationship("Player", foreign_keys=[loser_uid])
