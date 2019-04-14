@@ -11,7 +11,7 @@ from ranker import db
 class Player(db.Model):
     """ Player class """
     __tablename__ = "player"
-    uid = Column(String(10), primary_key=True)
+    uid = Column(String(24), primary_key=True)
     name = Column(String(64), nullable=False)
 
     rating = Column(Integer, nullable=False)
