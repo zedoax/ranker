@@ -13,8 +13,6 @@ slack_events = SlackEventAdapter(app.config['SLACK_API_KEY'], "/slack/events", a
 unpaired_matches = []
 paired_matches = []
 
-BOT_ACTIONS = ['create_match', 'remove_match' 'add_admin', 'remove_admin', 'witness']
-
 
 def create_match(args):
     """ Process match creation event """
@@ -135,7 +133,7 @@ def witness_match(args):
 
     if not valid:
         return "Sorry, " + data['error'] + \
-               " has no or invalid slack id configured. Please visit https://eac.csh.rit.edu/ to link"
+               " has no or invalid slack id configured. Please visit https://eac.csh.rit.edu/ to link", False
 
     response = post("https://" + app.config['SERVER_NAME'] + url_for("create_match"), json=data)
 
@@ -148,13 +146,33 @@ def witness_match(args):
     return "Match has been witnessed and recorded", True
 
 
+def change_main(args):
+    if len(args) != 2:
+        return "Usage: /main main_name", False
+    if ldap_get_member_slack(args[0]) is None:
+        return "Sorry, you do not have a valid slack id configured. " \
+               "Please visit https://eac.csh.rit.edu/ to link", False
+
+    player = ldap_get_member_slack(args[0])
+    name = args[1]
+
+    response = post("http://" + app.config['SERVER_NAME'] + url_for("change_main"), json={
+        "uid": player.uid,
+        "name": name
+    })
+    if response.status_code != 200:
+        return json.loads(response.text)['message'], False
+    return "You are now a " + name + " main!", True
+
+
 BOT_ACTION_FUNCTIONS = {
     '/accept': accept_match,
     '/challenge': create_match,
     '/cancel': cancel_match,
     '/add_witness': add_admin,
     '/retire': remove_admin,
-    '/witness': witness_match
+    '/witness': witness_match,
+    '/main': change_main
 }
 
 
