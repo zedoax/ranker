@@ -156,7 +156,7 @@ def change_main(args):
     player = ldap_get_member_slack(args[0])
     name = args[1]
 
-    response = post("http://" + app.config['SERVER_NAME'] + url_for("change_main"), json={
+    response = post("https://" + app.config['SERVER_NAME'] + url_for("change_main"), json={
         'uid': player.uid,
         'name': name
     })
