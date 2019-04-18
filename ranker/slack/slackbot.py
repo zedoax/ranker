@@ -157,8 +157,8 @@ def change_main(args):
     name = args[1]
 
     response = post("http://" + app.config['SERVER_NAME'] + url_for("change_main"), json={
-        "uid": player.uid,
-        "name": name
+        'uid': player.uid,
+        'name': name
     })
     if response.status_code != 200:
         return json.loads(response.text)['message'], False
