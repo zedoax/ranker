@@ -35,8 +35,10 @@
                                                 <td>
                                                     <a href="/player/{{ player.uid }}/">{{ player.name }}</a>
                                                 </td>
-                                                <td>
-                                                    <p>{% if player.main_name is not none %} {{ player.main_name }} {% endif %}</p>
+                                                <td class="text-center">
+                                                    {% if player.main_name is not none %}
+                                                    <img alt="{{ player.main_name }}" src="{{ player.main.sm_img_url }}" title="{{ player.main_name }}">
+                                                    {% endif %}
                                                 </td>
                                             </tr>
                                         {% endfor %}
