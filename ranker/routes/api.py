@@ -119,8 +119,7 @@ def change_main():
         # Get the correct objects
         player = Player.get_player(content['uid'])
         if player is None:
-            new_player(content['uid'])
-            player = Player.get_player(content['uid'])
+            player = new_player(content['uid'])
         main = Main.get_main(content['name'])
         if main is None:
             return make_response(jsonify(message="No such main exists"), 400)
