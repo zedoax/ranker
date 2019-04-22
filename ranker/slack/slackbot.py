@@ -147,14 +147,14 @@ def witness_match(args):
 
 
 def change_main(args):
-    if len(args) != 2:
+    if len(args) < 2:
         return "Usage: /main main_name", False
     if ldap_get_member_slack(args[0]) is None:
         return "Sorry, you do not have a valid slack id configured. " \
                "Please visit https://eac.csh.rit.edu/ to link", False
 
     player = ldap_get_member_slack(args[0])
-    name = args[1]
+    name = " ".join(args[1:])
 
     response = post("https://" + app.config['SERVER_NAME'] + url_for("change_main"), json={
         'uid': player.uid,
