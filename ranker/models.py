@@ -46,6 +46,7 @@ class Main(db.Model):
     """ Main class """
     __tablename__ = "main"
     name = Column(String(32), primary_key=True)
+    sm_img_url = Column(String(128), nullable=False)
 
     # A main can have many ranked players using it
     players = relationship("Player")
