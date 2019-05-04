@@ -8,3 +8,4 @@ flask_sqlalchemy==2.3.2
 psycopg2-binary>=2.7.0
 Flask-Migrate==2.4.0
 csh_ldap>=2.2.0
+gunicorn
