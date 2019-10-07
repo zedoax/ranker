@@ -52,3 +52,16 @@ Use the Flask CLI for creating and migrating the database.
 * For help with an individual command run `flask {command} --help`
 
 The commands above will use the configuration from above to decide which db it points to 
+
+### V2 COMING SOON
+
+<b>Includes:</b>
+* Multi-game support
+* Tournament Signup/Results
+* Profile pages
+* Enhanced user customization
+* Season Support
+* TypeScript/React frontend
+
+Sample:
+[![Sample Preview](img/v2.png)](https://github.com/zedoax/Ranker)
