@@ -202,7 +202,6 @@ def witness_match():
     plus_score = config['RATING_IMPACT_CONSTANT'] * (1 - expected_rating_winner)
     minus_score = config['RATING_IMPACT_CONSTANT'] * (0 - expected_rating_loser)
 
-    # Create the match, if fails: error out
     try:
         match = Match(
             winner=winner,
