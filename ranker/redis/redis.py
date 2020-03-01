@@ -13,7 +13,7 @@ def put_challenge(challenger, challenged, season):
 
 
 def pop_challenge(challenger, challenged):
-    if not (challenge_exists(challenger, challenged) or challenge_exists(challenged, challenger)):
+    if not challenge_exists(challenger, challenged) and not challenge_exists(challenged, challenger):
         raise ValueError('Error: There is no challenge between {0} and {1}'.format(challenger, challenged))
     query_string = ','.join((challenger, challenged))
     challenge = redis.hgetall(query_string)
@@ -27,7 +27,7 @@ def pop_challenge(challenger, challenged):
 
 
 def del_challenge(challenger, challenged):
-    if not challenge_exists(challenger, challenged) or challenge_exists(challenged, challenger):
+    if not challenge_exists(challenger, challenged) and not challenge_exists(challenged, challenger):
         raise ValueError('Error: There is no challenge between {0} and {1}'.format(challenger, challenged))
     redis.delete(','.join((challenger, challenged)))
     redis.delete(','.join((challenged, challenger)))

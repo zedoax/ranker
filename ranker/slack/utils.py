@@ -12,7 +12,7 @@ def strip_id(string):
     user_end = string.find('>')
     if user_start == -1 or user_index == -1 or user_trans == -1 or user_end == -1:
         return string
-    return string[:user_start] + string[user_index+1:user_trans] + string[user_end+1:]
+    return string[user_index+1:user_trans]
 
 
 def rotate_token():

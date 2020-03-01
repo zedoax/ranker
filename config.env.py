@@ -15,7 +15,7 @@ OIDC_REALM = environ.get("RANKER_OIDC_REALM", "csh")
 OIDC_SCOPES = {"scope": "openid email profile:twitter profile:twitch"}
 
 # SQLAlchemy Configuration
-SQLALCHEMY_DATABASE_URI = environ.get("RANKER_DATABASE_URI", "postgres://ranker:ranker@127.0.0.1:5432/ranker")
+SQLALCHEMY_DATABASE_URI = environ.get("RANKER_DATABASE_URI")
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Redis Configuration
@@ -37,4 +37,4 @@ RATING_DEFAULT = int(environ.get("RANKER_RATING_DEFAULT", 100))
 PROFILE_IMAGES_ROOT = environ.get("RANKER_PROFILE_IMAGES_ROOT", "https://profiles.csh.rit.edu")
 
 # Set to false if performing a flask migration or audit
-ENABLE_API = environ.get("RANKER_ENABLE_API", True)
+ENABLE_API = environ.get("RANKER_ENABLE_API", False)

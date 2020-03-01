@@ -54,8 +54,8 @@ def new_match():
     if not season:
         make_response("That season does not exist", 400)
 
-    if challenger.username == challenged.username:
-        return make_response("You can't challenge yourself!", 400)
+    if challenger == challenged:
+        return make_response("You cannot challenge yourself!", 400)
 
     try:
         put_challenge(content["challenger"], content["challenged"], content["season"])
@@ -81,9 +81,11 @@ def accept_match():
     challenged = User.get_user(username=content["challenged"])
 
     if not challenger:
-        make_response("You have not yet logged into ranker", 400)
+        return make_response("You have not yet logged into ranker", 400)
     if not challenged:
-        make_response("That challenger has not yet logged into ranker", 400)
+        return make_response("That challenger has not yet logged into ranker", 400)
+    if challenger == challenged:
+        return make_response("You cannot accept a challenge with yourself!", 400)
 
     try:
         accept_challenge(challenger.username, challenged.username)
@@ -98,7 +100,7 @@ def accept_match():
 def cancel_match():
     try:
         content = convert_request()
-        if not content["challenged"]:
+        if "challenged" not in content:
             content["challenged"] = g.user.username
         else:
             content["challenger"] = g.user.username
@@ -139,8 +141,8 @@ def witness_match():
 
     # Get the necessary values from the request
     season = Season.get_season(content["season"])
-    winner = Score.get_score(username=content['winner'], _id=season.id)
-    loser = Score.get_score(username=content['loser'], _id=season.id)
+    winner = Score.get_score(username=content['winner'], season=season.id)
+    loser = Score.get_score(username=content['loser'], season=season.id)
     witness = User.get_user(content['witness'])
     winner_wins = content['winner_wins']
     loser_wins = content['loser_wins']

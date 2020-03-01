@@ -16,8 +16,8 @@ def auth_required(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
         token = request.headers.environ.get("HTTP_AUTHORIZATION")
-        if token == "Bearer ".join(bot_token["bearer"]):
-            user_data = request.json().user
+        if token == 'Bearer ' + ''.join(bot_token["bearer"]):
+            user_data = {"username": request.json.get("user")}
         else:
             user_data = Oidc.user_by_token(token)
         if not user_data:
@@ -67,9 +67,16 @@ def convert_request():
 
 
 def get_request_form(*args):
-    content = []
+    content = {}
     for arg in args:
-        content.append(request.form.get(arg))
+        content[arg] = request.form.get(arg)
+    return content
+
+
+def get_url_encoded(*args):
+    content = {}
+    for arg in args:
+        content[arg] = request.args.get(arg)
     return content
 
 
