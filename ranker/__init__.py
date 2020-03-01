@@ -1,19 +1,19 @@
 """ Ranker main module """
-
+import logging
 import os
+from pathlib import Path
 
-import csh_ldap
 from flask import Flask
+from flask_cors import CORS
+from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
-from flask_pyoidc.provider_configuration import ClientMetadata, ProviderConfiguration
-from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
-# pylint: disable=C0103
 app = Flask(__name__)
+CORS(app)
 
 # Load Configuration
-_root_dir = os.path.dirname(os.path.realpath(__name__))
+_root_dir = Path(__file__).parent.parent
 app.config.from_pyfile(os.path.join(_root_dir, "config.env.py"))
 
 # Load Custom Configurations
@@ -21,23 +21,15 @@ _conf_file = os.path.join(_root_dir, "config.py")
 if os.path.exists(_conf_file):
     app.config.from_pyfile(_conf_file)
 
-# Load SQLAlchemy
+# Load Logger
+logging.basicConfig(level=logging.INFO)
+logging.info('Starting API Logger...')
+
+# Load SQLAlchemy and Alembic
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
+app.config["db"] = db
+app.config["ma"] = ma
 migrate = Migrate(app, db)
 
-# Load CSH Authentication
-_config = ProviderConfiguration(
-    app.config["OIDC_ISSUER"],
-    client_metadata=ClientMetadata(
-        app.config["OIDC_CLIENT_ID"], app.config["OIDC_CLIENT_SECRET"]
-    )
-)
-auth = OIDCAuthentication({"default": _config}, app)
-
-_ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
-
-# pylint: disable=C0413
-from ranker.routes import ranking, api, error
-
-if app.config["SLACK_ENABLED"]:
-    from ranker.slack import slackbot
+from ranker.api.v2 import *
