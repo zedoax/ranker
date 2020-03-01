@@ -27,7 +27,7 @@ class Season(db.Model):
         if name:
             return cls.query.filter(cls.name == name).first()
         if game:
-            return cls.query.filter(cls.game.id == game).all()
+            return cls.query.filter(cls.game_id == game).all()
         if username:
             return cls.query.filter(cls.scores.any(username=username)).all()
         if date:
