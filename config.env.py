@@ -11,6 +11,7 @@ SECRET_KEY = environ.get("RANKER_SECRET_KEY", "REPLACE_THIS")
 OIDC_AUTHORITY = environ.get("RANKER_OIDC_AUTHORITY", "https://sso.csh.rit.edu/auth/")
 OIDC_CLIENT_ID = environ.get("RANKER_OIDC_CLIENT_ID", "ranker")
 OIDC_CLIENT_SECRET = environ.get("RANKER_OIDC_CLIENT_SECRET")
+OIDC_REALM = environ.get("RANKER_OIDC_REALM", "csh")
 OIDC_SCOPES = {"scope": "openid email profile:twitter profile:twitch"}
 
 # SQLAlchemy Configuration
