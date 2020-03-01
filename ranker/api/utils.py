@@ -73,13 +73,6 @@ def get_request_form(*args):
     return content
 
 
-def get_url_encoded(*args):
-    content = {}
-    for arg in args:
-        content[arg] = request.args.get(arg)
-    return content
-
-
 def content_is_valid(content, *args):
     for item in args:
         if item not in content:

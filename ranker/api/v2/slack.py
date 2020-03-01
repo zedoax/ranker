@@ -5,7 +5,7 @@ from requests import post
 from slackeventsapi import SlackEventAdapter
 
 from ranker import app
-from ranker.api.utils import get_url_encoded
+from ranker.api.utils import get_request_form
 from ranker.auth.oidc import OidcAuth
 from ranker.db.season import Season
 from ranker.db.user import User
@@ -176,7 +176,7 @@ def bot_command_game(game):
 @slack_bp.route("/command", methods=["POST"])
 def bot_command():
     """ Process sent command """
-    content = get_url_encoded("channel_id", "user_id", "command", "text")
+    content = get_request_form("channel_id", "user_id", "command", "text")
     args = []
     if len(content.get("text")) > 0:
         args = [strip_id(item) for item in content['text'].split(" ")]
