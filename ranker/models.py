@@ -59,7 +59,7 @@ class Main(db.Model):
     @classmethod
     def get_main(cls, name):
         """ Return the main by given name """
-        return cls.query.filter_by(name=name).first()
+        return cls.query.filter(cls.name.ilike(name)).first()
 
     @classmethod
     def exists(cls, name):
