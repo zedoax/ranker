@@ -32,4 +32,5 @@ app.config["db"] = db
 app.config["ma"] = ma
 migrate = Migrate(app, db)
 
-from ranker.api.v2 import *
+if app.config["ENABLE_API"]:
+    import ranker.api

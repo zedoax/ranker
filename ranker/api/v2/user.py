@@ -57,12 +57,13 @@ def get_slack_user(_id):
 
 @user_bp.route("/create", methods=["POST"])
 @auth_required
-def create_user(user_data):
-    if User.get_user(user_data["username"]):
+def create_user(user_data=None):
+    """ Silently create user if first login """
+    if not user_data:
         return make_response(None, 200)
     try:
         _create_user(user_data["username"], user_data["first_name"], user_data["last_name"], user_data["profile_img"])
     except SQLAlchemyError as err:
         logging.error(err)
-        return make_response("Unable to create user from provided credentials", 500)
-    return make_response("You have successfully been added as a user", 201)
+        return make_response(None, 500)
+    return make_response(None, 201)

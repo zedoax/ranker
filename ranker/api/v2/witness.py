@@ -22,7 +22,7 @@ def get_witnesses():
 @admin_required
 def new_witness():
     try:
-        content = convert_request(request)
+        content = convert_request()
     except AssertionError as err:
         logging.error('Error: Witness request failed: ', err)
         return make_response("Sorry, that's not a valid request", 400)

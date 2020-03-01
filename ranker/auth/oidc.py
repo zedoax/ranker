@@ -1,5 +1,6 @@
 from ranker import app
 from ranker.auth import oidc
+from requests.auth import AuthBase
 
 
 class Oidc:
@@ -14,3 +15,12 @@ class Oidc:
             "last_name": user["family_name"],
             "profile_img": "{0}/image/{1}".format(app.config["PROFILE_IMAGES_ROOT"], user["preferred_username"])
         }
+
+
+class OidcAuth(AuthBase):
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, r):
+        r.headers["authorization"] = "Bearer " + self.token
+        return r

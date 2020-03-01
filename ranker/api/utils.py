@@ -8,6 +8,7 @@ from flask import request
 
 from ranker.auth.oidc import Oidc
 from ranker.db.user import User
+from ranker.slack import bot_token
 
 
 def auth_required(func):
@@ -15,7 +16,10 @@ def auth_required(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
         token = request.headers.environ.get("HTTP_AUTHORIZATION")
-        user_data = Oidc.user_by_token(token)
+        if token == "Bearer ".join(bot_token["bearer"]):
+            user_data = request.json().user
+        else:
+            user_data = Oidc.user_by_token(token)
         if not user_data:
             return make_response("Unable to authenticate authorization token", 401)
         user = User.get_user(username=user_data["username"])

@@ -4,6 +4,7 @@ from ranker.api.v2.game import game_bp
 from ranker.api.v2.match import match_bp
 from ranker.api.v2.score import score_bp
 from ranker.api.v2.season import season_bp
+from ranker.api.v2.slack import slack_bp
 from ranker.api.v2.user import user_bp
 from ranker.api.v2.witness import witness_bp
 
@@ -13,3 +14,5 @@ app.register_blueprint(user_bp)
 app.register_blueprint(season_bp)
 app.register_blueprint(score_bp)
 app.register_blueprint(witness_bp)
+if app.config["SLACK_ENABLED"]:
+    app.register_blueprint(slack_bp)

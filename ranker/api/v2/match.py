@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, make_response, Blueprint, g
+from flask import make_response, Blueprint, g
 from sqlalchemy.exc import SQLAlchemyError
 
 from ranker import app

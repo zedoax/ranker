@@ -13,8 +13,8 @@ class User(db.Model):
     twitch_id = Column(String(100), nullable=True)
     twitter_id = Column(String(15), nullable=True)
     profile_img = Column(String(256), nullable=False)
-    witness = Column(Boolean, default=False)
-    admin = Column(Boolean, default=False)
+    witness = Column(Boolean, nullable=False, default=False)
+    admin = Column(Boolean, nullable=False, default=False)
 
     scores = relationship("Score")
 
