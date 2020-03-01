@@ -43,6 +43,7 @@ def new_match():
     if not content_is_valid(content, 'challenger', 'challenged', 'season'):
         return make_response("Sorry, that's not a valid challenge", 400)
 
+    logging.info(content)
     challenger = User.get_user(username=content["challenger"])
     challenged = User.get_user(username=content["challenged"])
     season = Season.get_season(_id=content["season"])

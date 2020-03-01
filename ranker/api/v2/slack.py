@@ -4,7 +4,7 @@ from flask import url_for, jsonify, make_response, redirect, Blueprint
 from requests import post
 from slackeventsapi import SlackEventAdapter
 
-from ranker import app
+from ranker import app, logging
 from ranker.api.utils import get_request_form
 from ranker.auth.oidc import OidcAuth
 from ranker.db.season import Season
@@ -37,7 +37,8 @@ def new_match(args):
     }
     token = rotate_token()
     response = post(host_uri + url_for("matches.new_match"), json=data, auth=OidcAuth(token))
-
+    logging.info(response)
+    logging.info(data)
     return json.loads(response.content)
 
 
