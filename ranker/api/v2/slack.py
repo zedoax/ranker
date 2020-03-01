@@ -158,7 +158,7 @@ def bot_command_game(game):
             'text': "There are no active seasons for this game"
         })
     latest_season = seasons[0]
-    content = get_url_encoded("channel_id", "user_id", "command", "text")
+    content = get_request_form("channel_id", "user_id", "command", "text")
     args = []
     if len(content.get("text")) > 0:
         args = [strip_id(item) for item in content['text'].split(" ")]
