@@ -37,4 +37,4 @@ RATING_DEFAULT = int(environ.get("RANKER_RATING_DEFAULT", 100))
 PROFILE_IMAGES_ROOT = environ.get("RANKER_PROFILE_IMAGES_ROOT", "https://profiles.csh.rit.edu")
 
 # Set to false if performing a flask migration or audit
-ENABLE_API = environ.get("RANKER_ENABLE_API", False)
+API_ENABLED = environ.get("RANKER_API_ENABLED", False)
