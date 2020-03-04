@@ -1,6 +1,8 @@
 import random
 import string as _string
 
+from flask import jsonify
+
 from ranker.slack import bot_token
 
 
@@ -13,6 +15,14 @@ def strip_id(string):
     if user_start == -1 or user_index == -1 or user_trans == -1 or user_end == -1:
         return string
     return string[user_index+1:user_trans]
+
+
+def make_response(message):
+    """ Creates the Slack post response """
+    return jsonify({
+        'response_type': 'in_channel',
+        'text': message
+    })
 
 
 def rotate_token():

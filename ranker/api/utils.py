@@ -15,9 +15,9 @@ def auth_required(func):
     """ Pre-processing to be done before a request """
     @wraps(func)
     def wrapped_function(*args, **kwargs):
-        token = request.headers.environ.get("HTTP_AUTHORIZATION")
-        if token == 'Bearer ' + ''.join(bot_token["bearer"]):
-            user_data = {"username": request.json.get("user")}
+        token = Oidc.strip_bearer_token(request.headers.environ.get("HTTP_AUTHORIZATION"))
+        if token == bot_token["bearer"]:
+            user_data = {"username": request.json.get("username")}
         else:
             user_data = Oidc.user_by_token(token)
         if not user_data:
@@ -60,17 +60,14 @@ def make_response(message, status):
     return response
 
 
-def convert_request():
-    if not request.is_json:
-        raise AssertionError('Error: Request is not in json format')
+def get_request_json(schema):
+    schema.validate(request.get_json())
     return request.get_json()
 
 
-def get_request_form(*args):
-    content = {}
-    for arg in args:
-        content[arg] = request.form.get(arg)
-    return content
+def get_request_form(schema):
+    schema.validate(request.form)
+    return request.form
 
 
 def content_is_valid(content, *args):

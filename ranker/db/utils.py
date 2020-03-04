@@ -1,7 +1,9 @@
 from sqlalchemy.exc import SQLAlchemyError
 
+from ranker import app
 from ranker.db import db
 from ranker.db.game import Game
+from ranker.db.match import Match
 from ranker.db.score import Score
 from ranker.db.season import Season
 from ranker.db.user import User
@@ -76,3 +78,45 @@ def create_user(username, first_name, last_name, profile_img, **kwargs):
     except SQLAlchemyError as err:
         raise err
     return user
+
+
+def create_match(winner, loser, witness, season, winner_wins, loser_wins, challenger):
+    # Calculate Rating Changes
+    rating_winner = pow(10, (winner.score / 400))
+    rating_loser = pow(10, (loser.score / 400))
+
+    expected_rating_winner = rating_winner / (rating_winner + rating_loser)
+    expected_rating_loser = rating_loser / (rating_winner + rating_loser)
+
+    plus_score = app.config['RATING_IMPACT_CONSTANT'] * (1 - expected_rating_winner)
+    minus_score = app.config['RATING_IMPACT_CONSTANT'] * (0 - expected_rating_loser)
+
+    try:
+        match = Match(
+            winner=winner,
+            loser=loser,
+            witness=witness,
+            season=season,
+            winner_wins=winner_wins,
+            loser_wins=loser_wins,
+            winner_prev_score=winner.score,
+            loser_prev_score=loser.score,
+            challenger_is_winner=winner.username == challenger)
+        winner.score += plus_score
+        loser.score += minus_score
+
+        db.session.add(match)
+        db.session.commit()
+    except SQLAlchemyError as error:
+        raise error
+
+
+def validate_rounds(winner_wins, loser_wins, max_rounds, min_rounds):
+    if winner_wins + loser_wins > max_rounds:
+        raise ValueError('That is too many rounds!')
+    if winner_wins + loser_wins < min_rounds:
+        raise ValueError('That is not enough rounds!')
+    if winner_wins < int(max_rounds / 2) + 1:
+        raise ValueError('That is not enough rounds for the winner')
+    if winner_wins < loser_wins:
+        raise ValueError('The loser cannot win more rounds than the winner!')

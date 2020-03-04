@@ -2,7 +2,7 @@ from flask import Blueprint, g
 from sqlalchemy.exc import SQLAlchemyError
 
 from ranker import app, logging
-from ranker.api.utils import convert_request, make_response, content_is_valid, admin_required, auth_required
+from ranker.api.utils import get_request_json, make_response, content_is_valid, admin_required, auth_required
 from ranker.db.game import Game
 from ranker.db.utils import create_game
 from ranker.schema.game import games_schema, game_schema
@@ -39,7 +39,7 @@ def new_game():
         return make_response("You are not an authorized administrator", 403)
 
     try:
-        content = convert_request()
+        content = get_request_json()
     except AssertionError as err:
         logging.error('Error: Challenge request failed: ', err)
         return make_response("Sorry, that's not a valid request", 400)

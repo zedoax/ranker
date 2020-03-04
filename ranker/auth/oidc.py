@@ -16,6 +16,10 @@ class Oidc:
             "profile_img": "{0}/image/{1}".format(app.config["PROFILE_IMAGES_ROOT"], user["preferred_username"])
         }
 
+    @staticmethod
+    def strip_bearer_token(bearer):
+        return bearer[7:]
+
 
 class OidcAuth(AuthBase):
     def __init__(self, token):

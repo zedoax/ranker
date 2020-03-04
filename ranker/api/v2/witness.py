@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from sqlalchemy.exc import SQLAlchemyError
 
 from ranker import app, logging
-from ranker.api.utils import convert_request, make_response, content_is_valid, admin_required, auth_required
+from ranker.api.utils import get_request_json, make_response, content_is_valid, admin_required, auth_required
 from ranker.db import db
 from ranker.db.user import User
 from ranker.schema.user import users_schema
@@ -22,7 +22,7 @@ def get_witnesses():
 @admin_required
 def new_witness():
     try:
-        content = convert_request()
+        content = get_request_json()
     except AssertionError as err:
         logging.error('Error: Witness request failed: ', err)
         return make_response("Sorry, that's not a valid request", 400)

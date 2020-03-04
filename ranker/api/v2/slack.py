@@ -1,15 +1,17 @@
 import json
 
-from flask import url_for, jsonify, make_response, redirect, Blueprint
+from flask import url_for, jsonify, redirect, Blueprint
+from marshmallow.exceptions import ValidationError
 from requests import post
 from slackeventsapi import SlackEventAdapter
 
-from ranker import app, logging
+from ranker import app
 from ranker.api.utils import get_request_form
 from ranker.auth.oidc import OidcAuth
 from ranker.db.season import Season
 from ranker.db.user import User
-from ranker.slack.utils import strip_id, rotate_token
+from ranker.schema.command import command_schema
+from ranker.slack.utils import strip_id, rotate_token, make_response
 
 slack_events = SlackEventAdapter(app.config['SLACK_API_KEY'], "/slack/events", app)
 
@@ -19,103 +21,102 @@ slack_bp = Blueprint("slack", __name__, url_prefix="/slack")
 
 
 def new_match(args):
-    """ Process match create event """
     if len(args) != 3:
-        return {"message": "Usage: /challenge @opponent"}
+        return "Usage: /challenge @opponent"
 
     challenger = User.get_user(slack_id=args[0])
     challenged = User.get_user(slack_id=args[1])
+    season = Season.get_season(_id=args[2])
+
     if challenger is None:
-        return {"message": "You have not yet logged into ranker, or have not yet linked slack to eac"}
+        return "You have not yet logged into ranker, or have not yet linked slack to eac"
     if challenged is None:
-        return {"message": "Your opponent has not yet logged into ranker, or have not yet linked slack to eac"}
+        return "Your opponent has not yet logged into ranker, or have not yet linked slack to eac"
 
     data = {
-        "user": challenger.username,
+        "username": challenger.username,
         "challenged": challenged.username,
-        "season": args[2]
+        "season": season.id
     }
+
     token = rotate_token()
-    response = post(host_uri + url_for("matches.new_match"), json=data, auth=OidcAuth(token))
-    logging.info(response)
-    logging.info(data)
-    return json.loads(response.content)
+    response = post(host_uri + url_for('matches.new_match'), json=data, auth=OidcAuth(token))
+    return json.loads(response.content)['message']
 
 
 def accept_match(args):
-    """ Process match accept event """
     if len(args) != 2:
-        return {"message": "Usage: /accept @opponent"}
+        return "Usage: /accept @opponent"
 
     challenged = User.get_user(slack_id=args[0])
     challenger = User.get_user(slack_id=args[1])
+
     if challenged is None:
-        return {"message": "You have not yet logged into ranker, or have not yet linked slack to eac"}
+        return "You have not yet logged into ranker, or have not yet linked slack to eac"
     if challenger is None:
-        return {"message": "Your opponent has not yet logged into ranker, or have not yet linked slack to eac"}
+        return "Your opponent has not yet logged into ranker, or have not yet linked slack to eac"
 
     data = {
-        "user": challenged.username,
+        "username": challenged.username,
         "challenger": challenger.username
     }
-    token = rotate_token()
-    response = post(host_uri + url_for("matches.accept_match"), json=data, auth=OidcAuth(token))
 
-    return json.loads(response.content)
+    token = rotate_token()
+    response = post(host_uri + url_for('matches.accept_match'), json=data, auth=OidcAuth(token))
+    return json.loads(response.content)['message']
 
 
 def cancel_match(args):
-    """ Process match cancel event """
     if len(args) != 2:
-        return {"message": "Usage: /challenge @opponent"}
+        return "Usage: /challenge @opponent"
 
     challenged = User.get_user(slack_id=args[0])
     challenger = User.get_user(slack_id=args[1])
+
     if challenged is None:
-        return {"message": "Your opponent's slack id is not linked to a ranker player!"}
+        return "Your opponent's slack id is not linked to a ranker player!"
     if challenger is None:
-        return {"message": "Your slack id is not linked to a ranker player!"}
+        return "Your slack id is not linked to a ranker player!"
 
     data = {
         "user": challenged.username,
         "challenger": challenger.username
     }
-    token = rotate_token()
-    response = post(host_uri + url_for("matches.cancel_match"), json=data, auth=OidcAuth(token))
 
-    return json.loads(response.content)
+    token = rotate_token()
+    response = post(host_uri + url_for('matches.cancel_match'), json=data, auth=OidcAuth(token))
+    return json.loads(response.content)['message']
 
 
 def witness_match(args):
-    """ Process witness event """
     if len(args) != 5:
-        return {"message": "Usage: /witness @winner @loser winner_wins loser_wins"}
+        return 'Usage: /witness @winner @loser winner_wins loser_wins'
 
     witness = User.get_user(slack_id=args[0])
     winner = User.get_user(slack_id=args[1])
     loser = User.get_user(slack_id=args[2])
-    if witness is None:
-        return {"message": "You have not yet logged into ranker, or have not yet linked slack to eac"}
-    if winner is None:
-        return {"message": "That winner has not yet logged into ranker, or have not yet linked slack to eac"}
-    if loser is None:
-        return {"message": "That loser has not yet logged into ranker, or have not yet linked slack to eac"}
-
     winner_wins = int(args[3])
     loser_wins = int(args[4])
 
+    if witness is None:
+        return 'You have not yet logged into ranker, or have not yet linked slack to eac'
+    if winner is None:
+        return 'That winner has not yet logged into ranker, or have not yet linked slack to eac'
+    if loser is None:
+        return 'That loser has not yet logged into ranker, or have not yet linked slack to eac'
+
     data = {
-        "user": witness.username,
+        "username": witness.username,
         "winner": winner.username,
         "loser": loser.username,
         "winner_wins": winner_wins,
         "loser_wins": loser_wins,
         "witness": witness.username
     }
+
     token = rotate_token()
     response = post(host_uri + url_for("matches.witness_match"), json=data, auth=OidcAuth(token))
-
-    return json.loads(response.content)
+    return json.loads(response.content)["message"]
 
 
 BOT_ACTION_FUNCTIONS = {
@@ -126,73 +127,35 @@ BOT_ACTION_FUNCTIONS = {
 }
 
 
-"""
-@slack_events.on("app_mention")
-def app_mention(event_data):
-    args = event_data['text'].split(" ")
-    fn = BOT_ACTION_FUNCTIONS[args[1]]
-    args = args[2:]
-    user = event_data['user']
-    fn({
-        'user': user.uid,
-        'channel': event_data['channel'],
-        'args': args
-    })
-"""
-
-
 @slack_events.on("url_verification")
 def app_verification(event_data):
-    """ Verification event """
-    return make_response(jsonify({
-        'challenge': event_data['challenge']
-    }), 200)
+    return jsonify({'challenge': event_data['challenge']})
+
+
+@slack_bp.route("/command", methods=["POST"])
+def bot_command(season=None):
+    try:
+        content = get_request_form(command_schema)
+    except ValidationError as error:
+        return make_response(error)
+    args = [content['user_id']] + [strip_id(item) for item in content['text'].split()] + [season] if season else []
+
+    command = BOT_ACTION_FUNCTIONS[content["command"]]
+    response = command(args)
+    return make_response(response)
 
 
 @slack_bp.route("/command/<int:game>", methods=["POST"])
 def bot_command_game(game):
-    """ Process sent command """
-    seasons = Season.get_season(game=game)
-    if not len(seasons) > 0:
-        return jsonify({
-            'response_type': 'in_channel',
-            'text': "There are no active seasons for this game"
-        })
-    latest_season = seasons[0]
-    content = get_request_form("channel_id", "user_id", "command", "text")
-    args = []
-    if len(content.get("text")) > 0:
-        args = [strip_id(item) for item in content['text'].split(" ")]
-
-    fn = BOT_ACTION_FUNCTIONS[content["command"]]
-    args.insert(0, content.get("user_id"))
-    args.append(latest_season.id)
-    response = fn(args)
-    return jsonify({
-        'response_type': 'in_channel',
-        'text': response.get("message")
-    })
-
-
-@slack_bp.route("/command", methods=["POST"])
-def bot_command():
-    """ Process sent command """
-    content = get_request_form("channel_id", "user_id", "command", "text")
-    args = []
-    if len(content.get("text")) > 0:
-        args = [strip_id(item) for item in content['text'].split(" ")]
-
-    fn = BOT_ACTION_FUNCTIONS[content["command"]]
-    args.insert(0, content.get("user_id"))
-    response = fn(args)
-    return jsonify({
-        'response_type': 'in_channel',
-        'text': response.get("message")
-    })
+    season = Season.current_season(game=game)
+    if not season:
+        return make_response('There are no active seasons for this game')
+    return bot_command(season.id)
 
 
 @slack_bp.route("/direct_install")
 def direct_install():
     """ Process direct install requests """
-    return redirect("""https://cshrit.slack.com/oauth/
-    563574560288.c7032ad2a0c916712246aff79853365685a3f48bb445e0939d7675e6bddea57e?team=1""", 302)
+    return redirect("""
+    https://cshrit.slack.com/oauth/563574560288.c7032ad2a0c916712246aff79853365685a3f48bb445e0939d7675e6bddea57e?team=1
+    """, 302)

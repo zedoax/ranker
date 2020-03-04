@@ -1,7 +1,8 @@
-from datetime import datetime
 
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, desc
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.functions import now
 
 from ranker.db import db
 from ranker.db.game import Game
@@ -14,11 +15,15 @@ class Season(db.Model):
     name = Column(String(25), nullable=False)
     banner = Column(String(256), nullable=False)
     game_id = Column(ForeignKey("games.id"), nullable=False)
-    start = Column(DateTime, nullable=False, default=datetime.now())
+    start = Column(DateTime, nullable=False, default=now())
     end = Column(DateTime, nullable=False)
 
     scores = relationship("Score", order_by="Score.score.desc()")
     game = relationship("Game", back_populates="seasons")
+
+    @classmethod
+    def current_season(cls, game):
+        return cls.query.filter(cls.game_id == game, cls.start < now(), now() < cls.end).first()
 
     @classmethod
     def get_season(cls, _id=None, game=None, username=None, name=None, date=None):
