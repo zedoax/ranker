@@ -1,8 +1,8 @@
 from marshmallow import fields
 
-from ranker.schema.score import ScoreSchema
-from ranker.schema.user import UserSchema
-from . import ma
+from ranker.schema.db.score import ScoreSchema
+from ranker.schema.db.user import UserSchema
+from .. import ma
 
 
 class MatchSchema(ma.ModelSchema):
@@ -14,7 +14,3 @@ class MatchSchema(ma.ModelSchema):
     winner_wins = fields.Integer()
     loser_wins = fields.Integer()
     challenger_is_winner = fields.Boolean()
-
-
-match_schema = MatchSchema()
-matches_schema = MatchSchema(many=True)

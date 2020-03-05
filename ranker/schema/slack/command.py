@@ -1,9 +1,7 @@
-import re
+from marshmallow import fields, validates, ValidationError
 
-from marshmallow import fields, validates
-from marshmallow.exceptions import ValidationError
-
-from . import ma
+from ranker.db.user import User
+from .. import ma
 
 
 class Command(ma.ModelSchema):
@@ -14,14 +12,10 @@ class Command(ma.ModelSchema):
 
     @validates('user_id')
     def validate_user_id(self, value):
-        slack_regex = re.compile('^U[A-Za-z0-9]{8}$')
-        if not slack_regex.match(value):
-            raise ValidationError('Invalid Regex')
+        if not User.get_user(slack_id=value):
+            raise ValidationError('Your Slack ID is not linked to a Ranker player. Use eac to link')
 
     @validates('command')
     def validate_command(self, value):
         if value not in ['/challenge', '/accept', '/cancel', '/witness']:
             raise ValidationError('Invalid Command')
-
-
-command_schema = Command()

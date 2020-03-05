@@ -1,13 +1,14 @@
 from flask import Blueprint, jsonify
+from marshmallow import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from ranker import app, logging
-from ranker.api.utils import make_response, auth_required
-from ranker.db.season import Season
+from ranker.api.utils import make_response, auth_required, get_request_json
+from ranker.db import seasons, users
 from ranker.db.user import User
 from ranker.db.utils import create_user as _create_user
-from ranker.schema.season import seasons_schema
-from ranker.schema.user import users_schema, user_schema
+from ranker.schema.db import seasons_schema, users_schema, user_schema
+from ranker.schema.api import user_schema as new_user_schema
 
 config = app.config
 user_bp = Blueprint("users", __name__, url_prefix="/users")
@@ -15,7 +16,7 @@ user_bp = Blueprint("users", __name__, url_prefix="/users")
 
 @user_bp.route("", methods=["GET"])
 def get_users():
-    users = User.get_user()
+    _users = users.get_user()
     return users_schema.dumps(users)
 
 
@@ -27,8 +28,8 @@ def get_user(username):
 
 @user_bp.route("/<username>/seasons", methods=["GET"])
 def get_user_seasons(username):
-    seasons = Season.get_season(username=username)
-    return seasons_schema.dumps(seasons)
+    _seasons = seasons.get_season(username=username)
+    return seasons_schema.dumps(_seasons)
 
 
 @user_bp.route("/<username>/witness", methods=["GET"])
@@ -57,13 +58,15 @@ def get_slack_user(_id):
 
 @user_bp.route("/create", methods=["POST"])
 @auth_required
-def create_user(user_data=None):
+def create_user():
     """ Silently create user if first login """
-    if not user_data:
-        return make_response(None, 200)
     try:
-        _create_user(user_data["username"], user_data["first_name"], user_data["last_name"], user_data["profile_img"])
-    except SQLAlchemyError as err:
-        logging.error(err)
+        content = get_request_json(new_user_schema)
+        _create_user(content["username"], content["first_name"], content["last_name"], content["profile_img"])
+    except ValidationError as error:
+        logging.error(error)
+        return make_response(None, 400)
+    except SQLAlchemyError as error:
+        logging.error(error)
         return make_response(None, 500)
     return make_response(None, 201)

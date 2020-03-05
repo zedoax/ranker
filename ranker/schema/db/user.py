@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from . import ma
+from .. import ma
 
 
 class UserSchema(ma.ModelSchema):
@@ -14,7 +14,3 @@ class UserSchema(ma.ModelSchema):
     witness = fields.Boolean()
     admin = fields.Boolean()
     scores = fields.List(fields.Nested("ScoreSchema", exclude=("user",)))
-
-
-user_schema = UserSchema()
-users_schema = UserSchema(many=True)

@@ -1,8 +1,8 @@
 from marshmallow import fields
 
-from ranker.schema.user import UserSchema
-from . import ma
+from ranker.schema.db.user import UserSchema
 from .character import CharacterSchema
+from .. import ma
 
 
 class ScoreSchema(ma.ModelSchema):
@@ -12,7 +12,3 @@ class ScoreSchema(ma.ModelSchema):
     season = fields.Nested("SeasonSchema", exclude=("scores",))
     user = fields.Nested(UserSchema(only=("username", "first_name", "last_name", "profile_img",)))
     main = fields.Nested(CharacterSchema)
-
-
-score_schema = ScoreSchema()
-scores_schema = ScoreSchema(many=True)

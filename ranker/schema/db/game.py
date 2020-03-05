@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from . import ma
+from .. import ma
 
 
 class GameSchema(ma.ModelSchema):
@@ -11,7 +11,3 @@ class GameSchema(ma.ModelSchema):
     seasons = fields.List(fields.Nested("SeasonSchema", exclude=("game",)))
     max_rounds = fields.Integer()
     min_rounds = fields.Integer()
-
-
-game_schema = GameSchema()
-games_schema = GameSchema(many=True)

@@ -28,8 +28,6 @@ logging.info('Starting API Logger...')
 # Load SQLAlchemy and Alembic
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-app.config["db"] = db
-app.config["ma"] = ma
 migrate = Migrate(app, db)
 
 if app.config["API_ENABLED"]:

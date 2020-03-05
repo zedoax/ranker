@@ -1,4 +1,4 @@
-import json
+from itertools import chain
 
 from flask import url_for, jsonify, redirect, Blueprint
 from marshmallow.exceptions import ValidationError
@@ -10,7 +10,7 @@ from ranker.api.utils import get_request_form
 from ranker.auth.oidc import OidcAuth
 from ranker.db.season import Season
 from ranker.db.user import User
-from ranker.schema.command import command_schema
+from ranker.schema.slack import command_schema
 from ranker.slack.utils import strip_id, rotate_token, make_response
 
 slack_events = SlackEventAdapter(app.config['SLACK_API_KEY'], "/slack/events", app)
@@ -34,14 +34,14 @@ def new_match(args):
         return "Your opponent has not yet logged into ranker, or have not yet linked slack to eac"
 
     data = {
-        "username": challenger.username,
+        "challenger": challenger.username,
         "challenged": challenged.username,
         "season": season.id
     }
 
     token = rotate_token()
-    response = post(host_uri + url_for('matches.new_match'), json=data, auth=OidcAuth(token))
-    return json.loads(response.content)['message']
+    response = post(host_uri + url_for('matches.new_match'), json=data, auth=OidcAuth(token, challenger.username))
+    return response.text
 
 
 def accept_match(args):
@@ -57,18 +57,18 @@ def accept_match(args):
         return "Your opponent has not yet logged into ranker, or have not yet linked slack to eac"
 
     data = {
-        "username": challenged.username,
+        "challenged": challenged.username,
         "challenger": challenger.username
     }
 
     token = rotate_token()
-    response = post(host_uri + url_for('matches.accept_match'), json=data, auth=OidcAuth(token))
-    return json.loads(response.content)['message']
+    response = post(host_uri+url_for('matches.accept_match'), json=data, auth=OidcAuth(token, challenged.username))
+    return response.text
 
 
 def cancel_match(args):
     if len(args) != 2:
-        return "Usage: /challenge @opponent"
+        return "Usage: /cancel @opponent"
 
     challenged = User.get_user(slack_id=args[0])
     challenger = User.get_user(slack_id=args[1])
@@ -79,13 +79,13 @@ def cancel_match(args):
         return "Your slack id is not linked to a ranker player!"
 
     data = {
-        "user": challenged.username,
+        "challenged": challenged.username,
         "challenger": challenger.username
     }
 
     token = rotate_token()
-    response = post(host_uri + url_for('matches.cancel_match'), json=data, auth=OidcAuth(token))
-    return json.loads(response.content)['message']
+    response = post(host_uri+url_for('matches.cancel_match'), json=data, auth=OidcAuth(token, challenged.username))
+    return response.text
 
 
 def witness_match(args):
@@ -115,8 +115,8 @@ def witness_match(args):
     }
 
     token = rotate_token()
-    response = post(host_uri + url_for("matches.witness_match"), json=data, auth=OidcAuth(token))
-    return json.loads(response.content)["message"]
+    response = post(host_uri + url_for("matches.witness_match"), json=data, auth=OidcAuth(token, witness.username))
+    return response.content
 
 
 BOT_ACTION_FUNCTIONS = {
@@ -138,7 +138,7 @@ def bot_command(season=None):
         content = get_request_form(command_schema)
     except ValidationError as error:
         return make_response(error)
-    args = [content['user_id']] + [strip_id(item) for item in content['text'].split()] + [season] if season else []
+    args = list(chain([content['user_id']], [strip_id(i) for i in content['text'].split()], [season] if season else []))
 
     command = BOT_ACTION_FUNCTIONS[content["command"]]
     response = command(args)

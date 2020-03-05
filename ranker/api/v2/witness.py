@@ -1,11 +1,13 @@
-from flask import Blueprint, request
+from flask import Blueprint
+from marshmallow import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from ranker import app, logging
-from ranker.api.utils import get_request_json, make_response, content_is_valid, admin_required, auth_required
+from ranker.api.utils import get_request_json, make_response, admin_required, auth_required
 from ranker.db import db
 from ranker.db.user import User
-from ranker.schema.user import users_schema
+from ranker.schema.api import username_schema
+from ranker.schema.db import users_schema
 
 config = app.config
 witness_bp = Blueprint("witnesses", __name__, url_prefix="/witnesses")
@@ -22,12 +24,9 @@ def get_witnesses():
 @admin_required
 def new_witness():
     try:
-        content = get_request_json()
-    except AssertionError as err:
-        logging.error('Error: Witness request failed: ', err)
-        return make_response("Sorry, that's not a valid request", 400)
-    if not content_is_valid(content, 'username'):
-        return make_response("Sorry, that's not a valid add witness request", 400)
+        content = get_request_json(username_schema)
+    except ValidationError as error:
+        return make_response(error, 400)
 
     username = content["username"]
 

@@ -1,52 +1,50 @@
 from datetime import datetime
 
 from dateutil import parser as date
-from flask import Blueprint, request
+from flask import Blueprint
+from marshmallow import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from ranker import logging
-from ranker.api.utils import get_request_json, make_response, content_is_valid, admin_required, auth_required
-from ranker.db.game import Game
-from ranker.db.match import Match
-from ranker.db.score import Score
-from ranker.db.season import Season
+from ranker.api.utils import get_request_json, make_response, admin_required, auth_required
+from ranker.db import games, matches, scores, seasons
 from ranker.db.utils import create_season
-from ranker.schema.match import matches_schema
-from ranker.schema.season import seasons_schema, season_schema
+from ranker.schema.db import seasons_schema, season_schema, matches_schema
+from ranker.schema.api import season_schema as api_season_schema
 
 season_bp = Blueprint("seasons", __name__, url_prefix="/seasons")
 
 
 @season_bp.route("", methods=["GET"])
 def get_seasons():
-    seasons = Season.get_season()
-    return seasons_schema.dumps(seasons)
+    _seasons = seasons.get_season()
+    return seasons_schema.dumps(_seasons)
 
 
 @season_bp.route("/active", methods=["GET"])
 def get_seasons_active():
-    seasons = Season.get_season(date=datetime.now())
-    return seasons_schema.dumps(seasons)
+    _seasons = seasons.get_season(date=datetime.now())
+    return seasons_schema.dumps(_seasons)
 
 
 @season_bp.route("/<int:_id>", methods=["GET"])
 def get_season(_id):
-    season = Season.get_season(_id=_id)
+    season = seasons.get_season(_id=_id)
     return season_schema.dumps(season)
 
 
 @season_bp.route("/<int:_id>/scores", methods=["GET"])
 def get_season_scores(_id):
-    season = Season.get_season(_id=_id)
-    scores = Score.get_score(season=season.id)
-    return seasons_schema.dumps(scores)
+    season = seasons.get_season(_id=_id)
+    _scores = scores.get_score(season=season.id)
+    return seasons_schema.dumps(_scores)
 
 
 @season_bp.route("/<int:_id>/matches", methods=["GET"])
 def get_season_matches(_id):
-    season = Season.get_season(_id=_id)
-    matches = Match.get_match(season=season.id)
-    return matches_schema.dumps(matches)
+    season = seasons.get_season(_id=_id)
+    _matches = matches.get_match(season=season.id)
+    return matches_schema.dumps(_matches)
 
 
 @season_bp.route("/new", methods=["POST"])
@@ -54,21 +52,18 @@ def get_season_matches(_id):
 @admin_required
 def new_season():
     try:
-        content = get_request_json()
-    except AssertionError as err:
-        logging.error('Error: Challenge request failed: ', err)
-        return make_response("Sorry, that's not a valid request", 400)
-    if not content_is_valid(content, 'name', 'banner', 'game', 'start', 'end'):
-        return make_response("Sorry, that's not a valid game request", 400)
+        content = get_request_json(api_season_schema)
+    except ValidationError as error:
+        return make_response(error, 400)
 
     name = content["name"]
     banner = content["banner"]
-    game = Game.get_game(content["game"])
+    game = games.get_game(content["game"])
     start = date.parse(content["start"])
     end = date.parse(content["end"])
 
-    if not Game:
-        return make_response("Sorry, I couldn't find that game", 404)
+    if not game:
+        return make_response("Sorry, couldn't find that game", 404)
 
     try:
         create_season(name, banner, game, start, end)

@@ -1,4 +1,3 @@
-from ranker import app
+from ranker import ma as ranker_ma
 
-
-ma = app.config["ma"]
+ma = ranker_ma

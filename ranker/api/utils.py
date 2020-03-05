@@ -1,13 +1,11 @@
-""" Utils module """
-
 from functools import wraps
 
-from flask import jsonify, g
+from flask import g
 from flask import make_response as flask_make_response
 from flask import request
 
 from ranker.auth.oidc import Oidc
-from ranker.db.user import User
+from ranker.db import users
 from ranker.slack import bot_token
 
 
@@ -15,16 +13,18 @@ def auth_required(func):
     """ Pre-processing to be done before a request """
     @wraps(func)
     def wrapped_function(*args, **kwargs):
+        if not request.headers.environ.get('HTTP_AUTHORIZATION'):
+            return make_response('', 401)
         token = Oidc.strip_bearer_token(request.headers.environ.get("HTTP_AUTHORIZATION"))
         if token == bot_token["bearer"]:
-            user_data = {"username": request.json.get("username")}
+            username = request.headers.environ.get("HTTP_USERNAME")
         else:
-            user_data = Oidc.user_by_token(token)
-        if not user_data:
+            username = Oidc.user_by_token(token)
+        if not username:
             return make_response("Unable to authenticate authorization token", 401)
-        user = User.get_user(username=user_data["username"])
+        user = users.get_user(username=username)
         if not user:
-            return func(*args, **kwargs, user_data=user_data)
+            return func(*args, **kwargs)
         g.user = user
         return func(*args, **kwargs)
     return wrapped_function
@@ -55,8 +55,8 @@ def witness_required(func):
 
 
 def make_response(message, status):
-    response = flask_make_response(jsonify(message=message), status)
-    response.headers["Set-Cookie"] = "HttpOnly;Secure;SameSite=Strict"
+    response = flask_make_response(message, status)
+    response.headers["Set-Cookie"] = "SameSite=None"
     return response
 
 
