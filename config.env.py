@@ -6,6 +6,7 @@ IP = environ.get("RANKER_IP", "localhost")
 PORT = environ.get("RANKER_PORT", "6969")
 SERVER_NAME = environ.get("RANKER_SERVER_NAME", IP + ":" + PORT)
 SECRET_KEY = environ.get("RANKER_SECRET_KEY", "REPLACE_THIS")
+SSL_ENABLED = environ.get("RANKER_SSL_ENABLED", False)
 
 # SSO Configuration
 OIDC_AUTHORITY = environ.get("RANKER_OIDC_AUTHORITY", "https://sso.csh.rit.edu/auth/")
