@@ -15,8 +15,7 @@ from ranker.slack.utils import strip_id, rotate_token, make_response
 
 slack_events = SlackEventAdapter(app.config['SLACK_API_KEY'], "/slack/events", app)
 
-config = app.config
-host_uri = "http://" + app.config["SERVER_NAME"]
+host_uri = ("https://" if app.config["SSL_ENABLED"] else "http://") + app.config["SERVER_NAME"]
 slack_bp = Blueprint("slack", __name__, url_prefix="/slack")
 
 
