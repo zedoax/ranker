@@ -1,7 +1,7 @@
 from marshmallow import fields
 
-from ranker.schema.db.score import ScoreSchema
-from ranker.schema.db.user import UserSchema
+from .score import ScoreSchema
+from .user import UserSchema
 from .. import ma
 
 

@@ -1,6 +1,6 @@
 from marshmallow import fields
 
-from ranker.schema.db.user import UserSchema
+from .user import UserSchema
 from .character import CharacterSchema
 from .. import ma
 

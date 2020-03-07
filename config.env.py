@@ -2,14 +2,14 @@ from os import environ
 
 # Flask Configuration
 DEBUG = environ.get("RANKER_DEBUG", False)
-IP = environ.get("RANKER_IP", "localhost")
+IP = environ.get("RANKER_IP", "127.0.0.1")
 PORT = environ.get("RANKER_PORT", "6969")
 SERVER_NAME = environ.get("RANKER_SERVER_NAME", IP + ":" + PORT)
 SECRET_KEY = environ.get("RANKER_SECRET_KEY", "REPLACE_THIS")
 SSL_ENABLED = environ.get("RANKER_SSL_ENABLED", False)
 
 # SSO Configuration
-OIDC_AUTHORITY = environ.get("RANKER_OIDC_AUTHORITY", "https://sso.csh.rit.edu/auth/")
+OIDC_AUTHORITY = environ.get("RANKER_OIDC_AUTHORITY", "https://sso.csh.rit.edu/auth/csh")
 OIDC_CLIENT_ID = environ.get("RANKER_OIDC_CLIENT_ID", "ranker")
 OIDC_CLIENT_SECRET = environ.get("RANKER_OIDC_CLIENT_SECRET")
 OIDC_REALM = environ.get("RANKER_OIDC_REALM", "csh")

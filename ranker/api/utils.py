@@ -1,12 +1,11 @@
 from functools import wraps
 
-from flask import g
+from flask import g, abort
 from flask import make_response as flask_make_response
 from flask import request
 
 from ranker.auth.oidc import Oidc
 from ranker.db import users
-from ranker.slack import bot_token
 
 
 def auth_required(func):
@@ -14,17 +13,14 @@ def auth_required(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
         if not request.headers.environ.get('HTTP_AUTHORIZATION'):
-            return make_response('', 401)
-        token = Oidc.strip_bearer_token(request.headers.environ.get("HTTP_AUTHORIZATION"))
-        if token == bot_token["bearer"]:
-            username = request.headers.environ.get("HTTP_USERNAME")
-        else:
-            username = Oidc.user_by_token(token)
+            return make_response('No bearer token given', 401)
+        bearer = request.headers.environ.get("HTTP_AUTHORIZATION")
+        username = Oidc.user_by_token(bearer)
         if not username:
             return make_response("Unable to authenticate authorization token", 401)
         user = users.get_user(username=username)
         if not user:
-            return func(*args, **kwargs)
+            return abort('Unable to authenticate user details')
         g.user = user
         return func(*args, **kwargs)
     return wrapped_function
@@ -56,7 +52,6 @@ def witness_required(func):
 
 def make_response(message, status):
     response = flask_make_response(message, status)
-    response.headers["Set-Cookie"] = "SameSite=None"
     return response
 
 
