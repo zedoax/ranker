@@ -1,0 +1,3 @@
+[submodule "ranker/ui"]
+	path = ranker/ui
+	url = https://github.com/zedoax/ranker-ui.git
